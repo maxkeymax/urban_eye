@@ -4,7 +4,7 @@ from typing import List
 from sqlalchemy import Boolean, DateTime, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ..db.base import Base
+from urban_eye.db.base import Base
 
 
 class User(Base):
