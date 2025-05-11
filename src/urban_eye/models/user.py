@@ -1,10 +1,13 @@
 from datetime import datetime
-from typing import List
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy import Boolean, DateTime, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from urban_eye.db.base import Base
+
+if TYPE_CHECKING:
+    from urban_eye.models.video import Video
 
 
 class User(Base):
