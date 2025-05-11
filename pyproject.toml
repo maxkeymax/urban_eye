@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.13"
 sqlalchemy = "^2.0.40"
 asyncpg = "^0.30.0"
+fastapi = {extras = ["standard"], version = "^0.115.12"}
 
 
 [build-system]
