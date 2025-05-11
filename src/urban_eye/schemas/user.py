@@ -1,4 +1,6 @@
-from pydantic import BaseModel, EmailStr, Field
+import datetime
+
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class UserBase(BaseModel):
@@ -16,8 +18,23 @@ class UserBase(BaseModel):
         description="Полное имя пользователя",
     )
     organization: str | None = Field(
-        None,
-        max_length=100,
-        examples=["ООО Сириус"],
-        description="Необязательное поле"
+        None, max_length=100, examples=["ООО Сириус"], description="Необязательное поле"
     )
+
+
+class UserCreate(UserBase):
+    password: str = Field(
+        ...,
+        min_length=8,
+        max_length=128,
+        examples=["Str0ngP@ss"],
+        description="Должен содержать заглавные буквы и цифры",
+        pattern=r"^(?=.*[A-Z])(?=.*\d).+$",
+    )
+
+
+class UserResponse(UserBase):
+    id: int = Field(examples=[1])
+    is_active: bool = Field(examples=[True])
+    created_at: datetime = Field(examples=["2023-11-20T12:00:00"])
+    model_config = ConfigDict(from_attributes=True)
