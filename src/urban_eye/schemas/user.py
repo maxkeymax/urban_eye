@@ -11,7 +11,7 @@ class UserBase(BaseModel):
         examples=["user@example.com"],
         description="Должен быть уникальным",
     )
-    user_name: str = Field(
+    full_name: str = Field(
         ...,
         min_length=1,
         max_length=100,
@@ -48,7 +48,7 @@ class UserUpdate(UserBase):
         examples=["user@example.com"],
         description="Должен быть уникальным",
     )
-    user_name: Optional[str] = Field(
+    full_name: Optional[str] = Field(
         default=None,
         min_length=1,
         max_length=100,
