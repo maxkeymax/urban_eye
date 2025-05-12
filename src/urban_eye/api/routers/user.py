@@ -10,7 +10,7 @@ from urban_eye.schemas.user import UserResponse, UserUpdate
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.post("/", response_model=User)
+@router.post("/", response_model=UserResponse)
 async def create_user(
     email: str, hashed_password: str, full_name: str, db: AsyncSession = Depends(get_db)
 ) -> User:
@@ -23,7 +23,7 @@ async def create_user(
         raise HTTPException(status_code=400, detail="Такая почта уже зарегистрирована")
 
 
-@router.get("/{user_id}", response_model=User)
+@router.get("/{user_id}", response_model=UserResponse)
 async def get_user(user_id: int, db: AsyncSession = Depends(get_db)) -> User:
     crud = UserCRUD(db)
     user = await crud.get_by_id(user_id)

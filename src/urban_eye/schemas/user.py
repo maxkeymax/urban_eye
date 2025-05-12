@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
@@ -30,7 +30,7 @@ class UserCreate(UserBase):
         max_length=128,
         examples=["Str0ngP@ss"],
         description="Должен содержать заглавные буквы и цифры",
-        pattern=r"^(?=.*[A-Z])(?=.*\d).+$",
+        pattern=r"^[A-Za-z0-9@#$%^&+=]{8,128}$",
     )
 
 
