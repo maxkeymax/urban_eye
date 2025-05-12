@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Optional
 
 from sqlalchemy.future import select
 
@@ -35,28 +35,14 @@ class UserCRUD:
         return new_user
 
     async def update_user(
-        self,
-        user_id: int,
-        *,
-        email: str = None,
-        hashed_password: str = None,
-        full_name: str = None,
-        organization: str = None,
-        is_active: bool = None,
+        self, user_id: int, update_data: dict[str, Any]
     ) -> Optional[User]:
         user = await self.get_by_id(user_id)
         if not user:
             return None
 
-        for key, value in {
-            "email": email,
-            "hashed_password": hashed_password,
-            "full_name": full_name,
-            "organization": organization,
-            "is_active": is_active,
-        }.items():
-            if value is not None:
-                setattr(user, key, value)
+        for key, value in update_data.items():
+            setattr(user, key, value)
 
         await self.db_session.commit()
         await self.db_session.refresh(user)

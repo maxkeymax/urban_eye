@@ -64,4 +64,3 @@ class UserUpdate(UserBase):
     is_active: Optional[bool] = Field(default=None)
 
     model_config = ConfigDict(validate_assignment=True)
-    
