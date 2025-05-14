@@ -1,9 +1,10 @@
 # urban_eye/models/camera.py
 
+import uuid
 from typing import TYPE_CHECKING, List
-from uuid import UUID
 
 from sqlalchemy import Boolean, DateTime, Float, Integer, String
+from sqlalchemy.dialects.postgresql import UUID as PgUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from urban_eye.db.base import Base
@@ -15,8 +16,11 @@ if TYPE_CHECKING:
 class Camera(Base):
     __tablename__ = "cameras"
 
-    # Поля из схемы d_camera
-    id: Mapped[UUID] = mapped_column(primary_key=True)  # UUID вместо автоинкремента
+    id: Mapped[uuid.UUID] = mapped_column(
+        PgUUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4
+    )
     camera_id: Mapped[str] = mapped_column(String(50), nullable=False)  # Номер камеры
     camera_class_cd: Mapped[int] = mapped_column(Integer, nullable=False)  # ID класса камеры
     camera_class: Mapped[str] = mapped_column(String(100), nullable=False)  # Класс камеры

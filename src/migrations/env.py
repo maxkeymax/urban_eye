@@ -1,14 +1,12 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
-
 from alembic import context
+from sqlalchemy import engine_from_config, pool
+from sqlalchemy.dialects.postgresql import UUID
 
+from urban_eye.db.base import Base
 from urban_eye.db.database import DATABASE_URL
 from urban_eye.models.user import User
-from urban_eye.db.base import Base
-
 
 config = context.config
 
