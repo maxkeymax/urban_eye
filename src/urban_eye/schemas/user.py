@@ -41,7 +41,7 @@ class UserResponse(UserBase):
     model_config = ConfigDict(from_attributes=True)
 
 
-class UserUpdate(UserBase):
+class UserUpdate(BaseModel):
     email: Optional[EmailStr] = Field(
         default=None,
         max_length=255,
