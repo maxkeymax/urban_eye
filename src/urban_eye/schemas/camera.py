@@ -100,7 +100,7 @@ class CameraResponse(CameraBase):
     model_config = ConfigDict(from_attributes=True)
 
 
-class CameraUpdate(BaseModel):
+class CameraUpdate(CameraBase):
     camera_id: Optional[str] = Field(
         default=None,
         max_length=50,
