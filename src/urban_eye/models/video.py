@@ -25,7 +25,9 @@ class Video(Base):
     duration: Mapped[int] = mapped_column(Integer, nullable=False)  # секунды
     video_resolution: Mapped[str] = mapped_column(String(20), nullable=False)  # например "1920x1080"
     fps: Mapped[int] = mapped_column(Integer, nullable=False)
-    time_of_day: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=False)  # время создания видео
+    time_of_day: Mapped[str] = mapped_column(
+        String(10), nullable=False, 
+        comment='Время суток: утро, день, вечер, ночь')  # время создания видео
 
     # Автор и камера
     uploader_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
