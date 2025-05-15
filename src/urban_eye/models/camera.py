@@ -36,12 +36,7 @@ class Camera(Base):
     camera_longitude: Mapped[float] = mapped_column(Float)  # Долгота
     archive: Mapped[bool] = mapped_column(Boolean, default=False)  # Признак архива (tinyint → bool)
     azimuth: Mapped[int] = mapped_column(Integer)  # Азимут
-    process_dttm: Mapped[datetime] = mapped_column(
-        DateTime, 
-        server_default=func.now(),  # Автоматическое время создания
-        nullable=False
-    )
-
+    process_dttm: Mapped[datetime] = mapped_column(DateTime, server_default=func.now()) 
     # Связь с видео
     videos: Mapped[List["Video"]] = relationship(back_populates="camera")
     

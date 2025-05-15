@@ -11,46 +11,44 @@ class CameraCRUD:
     def __init__(self, db_session: AsyncSession):
         self.db_session = db_session
 
-    async def get_by_id(self, camera_id: UUID) -> Optional[Camera]:
+    async def get_by_id(self, camera_uuid: UUID) -> Optional[Camera]:
         result = await self.db_session.execute(
-            select(Camera).where(Camera.id == camera_id)
+            select(Camera).where(Camera.id == camera_uuid)
         )
         return result.scalars().first()
 
     async def create_camera(
         self,
-        camera_id: UUID,
+        camera_id: str,
         camera_class_cd: int,
         camera_class: str,
+        camera_name: str,
+        camera_type_cd: int,
+        camera_type: str,
         model: Optional[str] = None,
-        camera_name: Optional[str] = None,
         camera_place: Optional[str] = None,
         camera_place_cd: Optional[int] = None,
         serial_number: Optional[str] = None,
-        camera_type_cd: int = None,
-        camera_type: str = None,
         camera_latitude: Optional[float] = None,
         camera_longitude: Optional[float] = None,
         archive: bool = False,
         azimuth: Optional[int] = None,
-        process_dttm: Optional[str] = None,
     ) -> Camera:
         new_camera = Camera(
             camera_id=camera_id,
             camera_class_cd=camera_class_cd,
             camera_class=camera_class,
-            model=model,
             camera_name=camera_name,
+            camera_type_cd=camera_type_cd,
+            camera_type=camera_type,
+            model=model,
             camera_place=camera_place,
             camera_place_cd=camera_place_cd,
             serial_number=serial_number,
-            camera_type_cd=camera_type_cd,
-            camera_type=camera_type,
             camera_latitude=camera_latitude,
             camera_longitude=camera_longitude,
             archive=archive,
             azimuth=azimuth,
-            process_dttm=process_dttm,
         )
         self.db_session.add(new_camera)
         await self.db_session.commit()

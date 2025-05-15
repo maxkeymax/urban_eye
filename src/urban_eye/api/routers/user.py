@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,12 +12,19 @@ router = APIRouter(prefix="/users", tags=["Users"])
 
 @router.post("/", response_model=UserResponse)
 async def create_user(
-    email: str, hashed_password: str, full_name: str, db: AsyncSession = Depends(get_db)
+    email: str,
+    hashed_password: str,
+    full_name: str, 
+    organization: Optional[str] = None,
+    db: AsyncSession = Depends(get_db)
 ) -> UserResponse:
     crud = UserCRUD(db)
     try:
         return await crud.create_user(
-            email=email, hashed_password=hashed_password, full_name=full_name
+            email=email,
+            hashed_password=hashed_password,
+            full_name=full_name,
+            organization=organization
         )
     except IntegrityError:
         raise HTTPException(status_code=400, detail="Такая почта уже зарегистрирована")
