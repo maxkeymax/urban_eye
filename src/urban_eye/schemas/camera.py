@@ -83,11 +83,6 @@ class CameraBase(BaseModel):
         examples=[180],
         description="Азимут камеры",
     )
-    process_dttm: str = Field(
-        ...,  # Можно использовать datetime при работе с моделью
-        examples=["2025-03-15T12:00:00Z"],
-        description="Дата и время добавления записи в таблицу",
-    )
 
 
 class CameraCreate(CameraBase):
@@ -177,11 +172,6 @@ class CameraUpdate(CameraBase):
         default=None,
         examples=[180],
         description="Азимут камеры",
-    )
-    process_dttm: Optional[str] = Field(
-        default=None,
-        examples=["2025-03-15T12:00:00Z"],
-        description="Дата и время добавления записи в таблицу",
     )
     
     model_config = ConfigDict(validate_assignment=True)

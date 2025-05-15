@@ -1,9 +1,10 @@
 # urban_eye/models/camera.py
 
 import uuid
+from datetime import datetime
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import Boolean, DateTime, Float, Integer, String
+from sqlalchemy import Boolean, DateTime, Float, Integer, String, func
 from sqlalchemy.dialects.postgresql import UUID as PgUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -35,7 +36,11 @@ class Camera(Base):
     camera_longitude: Mapped[float] = mapped_column(Float)  # Долгота
     archive: Mapped[bool] = mapped_column(Boolean, default=False)  # Признак архива (tinyint → bool)
     azimuth: Mapped[int] = mapped_column(Integer)  # Азимут
-    process_dttm: Mapped[DateTime] = mapped_column(DateTime, nullable=False)  # Время добавления записи
+    process_dttm: Mapped[datetime] = mapped_column(
+        DateTime, 
+        server_default=func.now(),  # Автоматическое время создания
+        nullable=False
+    )
 
     # Связь с видео
     videos: Mapped[List["Video"]] = relationship(back_populates="camera")
