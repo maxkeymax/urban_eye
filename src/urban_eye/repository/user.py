@@ -14,6 +14,10 @@ class UserCRUD:
         result = await self.db_session.execute(select(User).where(User.id == user_id))
         return result.scalars().first()
 
+    async def get_by_email(self, email: str) -> Optional[User]:
+        result = await self.db_session.execute(select(User).where(User.email == email))
+        return result.scalars().first()
+
     async def create_user(
         self,
         email: str,
