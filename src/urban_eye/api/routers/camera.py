@@ -1,11 +1,14 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from uuid import UUID
 
+from urban_eye.core.security import get_current_user
 from urban_eye.db.database import get_db
+from urban_eye.models.user import User
 from urban_eye.repository.camera import CameraCRUD
-from urban_eye.schemas.camera import CameraResponse, CameraCreate, CameraUpdate
+from urban_eye.schemas.camera import CameraCreate, CameraResponse, CameraUpdate
 
 router = APIRouter(prefix="/cameras", tags=["Cameras"])
 
@@ -13,7 +16,8 @@ router = APIRouter(prefix="/cameras", tags=["Cameras"])
 @router.post("/", response_model=CameraResponse)
 async def create_camera(
     camera_data: CameraCreate, 
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ) -> CameraResponse:
     crud = CameraCRUD(db)
     try:
@@ -28,7 +32,8 @@ async def create_camera(
 @router.get("/{camera_id}", response_model=CameraResponse)
 async def get_camera(
     camera_id: UUID, 
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ) -> CameraResponse:
     crud = CameraCRUD(db)
     camera = await crud.get_by_id(camera_id)
@@ -41,7 +46,8 @@ async def get_camera(
 async def update_camera(
     camera_id: UUID, 
     update_data: CameraUpdate, 
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ) -> CameraResponse:
     crud = CameraCRUD(db)
     updated = await crud.update_camera(
@@ -56,7 +62,8 @@ async def update_camera(
 @router.delete("/{camera_id}")
 async def delete_camera(
     camera_id: UUID, 
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ) -> dict:
     crud = CameraCRUD(db)
     deleted = await crud.delete_camera(camera_id)
