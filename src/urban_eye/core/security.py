@@ -51,7 +51,7 @@ async def get_current_user(
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Не удалось проверить учетные данные",
-        headers={'"WWW-Authenticate": "Bearer"'},
+        headers={"WWW-Authenticate": "Bearer"},
     )
 
     try:

@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
+from jose import jwt, JWTError
 
 from urban_eye.core.security import Hashing, TokenGenerator
 from urban_eye.db.database import get_db
 from urban_eye.repository.user import UserCRUD
 from urban_eye.schemas.user import UserCreate
+from urban_eye.settings import settings
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -61,3 +63,38 @@ async def login_for_access_token(
         "refresh_token": refresh_token,
         "token_type": "bearer",
     }
+
+@router.post('/refresh')
+async def refresh_access_token(
+    refresh_token: str,
+    db: AsyncSession = Depends(get_db),
+    ) -> dict:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail='Не удалось проверить refresh токен',
+        headers={"WWW-Authenticate": "Bearer"}
+    )
+    
+    try:
+        payload = jwt.decode(
+            refresh_token,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM]
+        )
+        user_id: str = payload.get('sub')
+        if user_id in None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    
+    user = await UserCRUD(db).get_by_id(int(user_id))
+    if user is None:
+        raise credentials_exception
+    
+    new_access_token = TokenGenerator.create_access_token(data={"sub": str(user.id)})
+    
+    return {
+        'access_token': new_access_token,
+        'token_type': 'bearer'
+    }
+    
