@@ -13,9 +13,26 @@ services:
     networks:
       - custom
 
+  minio:
+    image: minio/minio
+    restart: always
+    ports:
+      - "9000:9000"     # API порт
+      - "9001:9001"     # Веб-интерфейс
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: ["server", "/data", "--console-address", ":9001"]
+    volumes:
+      - minio_data:/data
+    networks:
+      - custom
+
 networks:
   custom:
     driver: bridge
 
 volumes:
   postgres_data:
+  minio_data:
+  
