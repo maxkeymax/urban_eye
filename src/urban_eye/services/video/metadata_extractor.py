@@ -1,9 +1,8 @@
-# urban_eye/services/metadata_extractor.py
+import os
+import tempfile
+from typing import Dict
 
 import cv2
-import tempfile
-import os
-from typing import Dict
 
 
 def extract_video_metadata(file_bytes: bytes) -> Dict[str, any]:
@@ -34,6 +33,5 @@ def extract_video_metadata(file_bytes: bytes) -> Dict[str, any]:
         "width": width,
         "height": height,
         "duration_sec": duration,
-        "video_resolution": f"{width}x{height}"
+        "video_resolution": f"{width}x{height}",
     }
-    
