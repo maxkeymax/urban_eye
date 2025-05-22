@@ -1,11 +1,10 @@
 import os
 import tempfile
-from typing import Tuple
 
 import cv2
 
 
-def generate_preview(file_bytes: bytes) -> Tuple[bytes, str]:
+def generate_preview(file_bytes: bytes) -> bytes:
     """
     Генерирует превью из первого кадра.
     Возвращает (байты превью, имя файла)
@@ -28,4 +27,4 @@ def generate_preview(file_bytes: bytes) -> Tuple[bytes, str]:
     cap.release()
     os.remove(tmp_path)
 
-    return preview_bytes, "preview.jpg"
+    return preview_bytes
