@@ -1,8 +1,10 @@
 # models.py
 
+import uuid
 from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String
+from sqlalchemy.dialects.postgresql import UUID as PgUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from urban_eye.db.base import Base
@@ -31,7 +33,7 @@ class Video(Base):
 
     # Автор и камера
     uploader_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    camera_id: Mapped[int] = mapped_column(ForeignKey("cameras.id"))
+    camera_id: Mapped[uuid.UUID] = mapped_column(PgUUID(as_uuid=True), ForeignKey("cameras.id"), nullable=False)
 
     # Отношения
     uploader: Mapped["User"] = relationship(back_populates="videos")
