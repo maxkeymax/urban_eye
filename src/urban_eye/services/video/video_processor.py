@@ -20,7 +20,7 @@ class VideoProcessor:
 
         # Генерируем превью из первого кадра
         try:
-            preview_bytes, _ = generate_preview(file_bytes)
+            preview_bytes = generate_preview(file_bytes)
 
         except Exception as e:
             raise RuntimeError(f"Не удалось сгенерировать превью: {e}")

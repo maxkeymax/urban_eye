@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 from typing import Optional
 
@@ -12,7 +13,7 @@ class VideoBase(BaseModel):
         examples=["Видео с камеры 1"],
         description="Название видео",
     )
-    
+
     time_of_day: str = Field(
         ...,
         examples=["утро", "день", "вечер", "ночь"],
@@ -22,7 +23,7 @@ class VideoBase(BaseModel):
 
 class VideoCreate(VideoBase):
     # uploader_id: int = Field(..., examples=[1])
-    camera_id: int = Field(..., examples=[1])
+    camera_id: uuid.UUID = Field(..., examples=["5e31ca75-0237-4ce1-81b8-1069fc764047"])
     status: str = Field(default="processing", examples=["processing", "ready"])
 
 
@@ -30,9 +31,9 @@ class VideoResponse(VideoBase):
     id: int = Field(examples=[1])
     uploaded_at: datetime = Field(examples=["2024-03-20T12:00:00+03:00"])
     uploader_id: int = Field(examples=[1])
-    camera_id: int = Field(examples=[1])
+    camera_id: uuid.UUID = Field(examples=["5e31ca75-0237-4ce1-81b8-1069fc764047"])
     status: str = Field(examples=["processing", "ready"])
-    video_key: str = Field(ё
+    video_key: str = Field(
         max_length=255,
         examples=["videos/2024/03/20/1.mp4"],
         description="Ключ видео в MinIO или другом хранилище",

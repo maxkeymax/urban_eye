@@ -1,4 +1,5 @@
 from typing import Optional
+import uuid
 
 from sqlalchemy.future import select
 
@@ -17,28 +18,36 @@ class VideoCRUD:
         return result.scalars().first()
 
     async def create_video(
-        db: AsyncSession,
+        self,
+        title: str,
+        time_of_day: str,
+        camera_id: uuid.UUID,
+        status: str,
         uploader_id: int,
         video_key: str,
         preview_key: str,
         fps: float,
-        duration_sec: float,
+        duration: int,
         video_resolution: str,
     ):
         """
         Сохраняет информацию о видео в БД
         """
         new_video = Video(
+            title=title,
+            time_of_day=time_of_day,
+            camera_id=camera_id,
+            status=status,
             uploader_id=uploader_id,
             video_key=video_key,
             preview_key=preview_key,
             fps=fps,
-            duration_sec=duration_sec,
+            duration=duration,
             video_resolution=video_resolution,
         )
-        db.add(new_video)
-        await db.commit()
-        await db.refresh(new_video)
+        self.db_session.add(new_video)
+        await self.db_session.commit()
+        await self.db_session.refresh(new_video)
 
         return new_video
 
