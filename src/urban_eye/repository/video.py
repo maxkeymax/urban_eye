@@ -1,5 +1,5 @@
 import uuid
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from sqlalchemy import distinct, func
 from sqlalchemy.future import select
@@ -96,19 +96,19 @@ class VideoCRUD:
             status=list(set(filters_data.distinct_statuses)),
         )
 
-    # async def update_video(
-    #     self, video_id: int, update_data: dict[str, Any]
-    # ) -> Optional[Video]:
-    #     video = await self.get_by_id(video_id)
-    #     if not video:
-    #         return None
+    async def update_video(
+        self, video_id: int, update_data: dict[str, Any]
+    ) -> Optional[Video]:
+        video = await self.get_by_id(video_id)
+        if not video:
+            return None
 
-    #     for key, value in update_data.items():
-    #         setattr(video, key, value)
+        for key, value in update_data.items():
+            setattr(video, key, value)
 
-    #     await self.db_session.commit()
-    #     await self.db_session.refresh(video)
-    #     return video
+        await self.db_session.commit()
+        await self.db_session.refresh(video)
+        return video
 
     # async def delete_video(self, video_id: int) -> bool:
     #     video = await self.get_by_id(video_id)

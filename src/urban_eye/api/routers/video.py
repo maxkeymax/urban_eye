@@ -7,7 +7,7 @@ from urban_eye.core.security import get_current_user
 from urban_eye.db.database import get_db
 from urban_eye.models.user import User
 from urban_eye.repository.video import VideoCRUD
-from urban_eye.schemas.video import VideoResponse
+from urban_eye.schemas.video import VideoResponse, VideoUpdate
 from urban_eye.services.video.video_processor import VideoProcessor
 
 router = APIRouter(prefix="/videos", tags=["Videos"])
@@ -58,7 +58,7 @@ async def upload_video(
     return db_video
 
 
-@router.get("/videos", response_model=List[VideoResponse])
+@router.get("/", response_model=List[VideoResponse])
 async def get_user_videos(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -70,3 +70,19 @@ async def get_user_videos(
         raise HTTPException(status_code=404, detail="Видео не найдены")
 
     return videos
+
+
+@router.put("/{video_id}", response_model=VideoResponse)
+async def update_video(
+    video_id: int,
+    data: VideoUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> VideoResponse:
+    crud = VideoCRUD(db)
+    updated = await crud.update_video(
+        video_id=video_id, update_data=data.model_dump(exclude_unset=True)
+    )
+    if not updated:
+        raise HTTPException(status_code=404, detail="Видео не найдено")
+    return updated
