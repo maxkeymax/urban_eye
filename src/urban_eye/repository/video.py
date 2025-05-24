@@ -1,10 +1,12 @@
 import uuid
 from typing import List, Optional
 
+from sqlalchemy import distinct, func
 from sqlalchemy.future import select
 
 from urban_eye.db.database import AsyncSession
 from urban_eye.models.video import Video
+from urban_eye.schemas.filters import DateRange, DurationRange, VideoFiltersResponse
 
 
 class VideoCRUD:
@@ -60,6 +62,39 @@ class VideoCRUD:
             select(Video).where(Video.uploader_id == user_id).limit(limit)
         )
         return result.scalars().all()
+
+    async def get_filters(self) -> VideoFiltersResponse:
+        querry = select(
+            func.min(Video.uploaded_at).label("min_upload_date"),
+            func.max(Video.uploaded_at).label("max_upload_date"),
+            func.min(Video.duration).label("min_duration"),
+            func.max(Video.duration).label("max_duration"),
+            func.array_agg(distinct(Video.time_of_day)).label("distinct_times_of_day"),
+            func.array_agg(distinct(Video.status)).label("distinct_statuses"),
+        )
+
+        result = await self.db_session.execute(querry)
+        filters_data = result.fetchone()
+
+        if not filters_data.min_upload_date:
+            return VideoFiltersResponse(
+                upload_date=DateRange(min=None, max=None),
+                duration=DurationRange(min=None, max=None),
+                time_of_day=[],
+                status=[],
+            )
+        return VideoFiltersResponse(
+            upload_date=DateRange(
+                min=filters_data.min_upload_date.isoformat(),
+                max=filters_data.max_upload_date.isoformat(),
+            ),
+            duration=DurationRange(
+                min=filters_data.min_duration,
+                max=filters_data.max_duration,
+            ),
+            time_of_day=list(set(filters_data.distinct_times_of_day)),
+            status=list(set(filters_data.distinct_statuses)),
+        )
 
     # async def update_video(
     #     self, video_id: int, update_data: dict[str, Any]
