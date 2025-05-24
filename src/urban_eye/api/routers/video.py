@@ -1,10 +1,13 @@
+from typing import List
+
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from urban_eye.core.security import get_current_user
 from urban_eye.db.database import get_db
+from urban_eye.models.user import User
 from urban_eye.repository.video import VideoCRUD
-from urban_eye.schemas.video import VideoCreate, VideoResponse
+from urban_eye.schemas.video import VideoResponse
 from urban_eye.services.video.video_processor import VideoProcessor
 
 router = APIRouter(prefix="/videos", tags=["Videos"])
@@ -20,16 +23,18 @@ async def upload_video(
     ),  # UUID
     status: str = Form(default="processing"),
     file: UploadFile = File(...),
-    uploader_id: int = Form(5),  # Пока хардкод, потом заменить на Depends
+    uploader: int = Depends(
+        get_current_user
+    ),  # Пока хардкод, потом заменить на Depends
     db: AsyncSession = Depends(get_db),
-):
+) -> VideoResponse:
     # Собираем все данные в словарь
     video_data = {
         "title": title,
         "time_of_day": time_of_day,
         "camera_id": camera_id,
         "status": status,
-        "uploader_id": uploader_id,
+        "uploader_id": uploader.id,
     }
 
     # Обработка видео
@@ -51,3 +56,17 @@ async def upload_video(
     db_video = await crud.create_video(**full_data)
 
     return db_video
+
+
+@router.get("/videos", response_model=List[VideoResponse])
+async def get_user_videos(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> List[VideoResponse]:
+    crud = VideoCRUD(db)
+    videos = await crud.get_videos(current_user.id)
+
+    if not videos:
+        raise HTTPException(status_code=404, detail="Видео не найдены")
+
+    return videos

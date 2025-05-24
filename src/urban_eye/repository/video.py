@@ -1,5 +1,5 @@
-from typing import Optional
 import uuid
+from typing import List, Optional
 
 from sqlalchemy.future import select
 
@@ -50,6 +50,16 @@ class VideoCRUD:
         await self.db_session.refresh(new_video)
 
         return new_video
+
+    async def get_videos(
+        self,
+        user_id: int,
+        limit: int = 5,
+    ) -> List[Video]:
+        result = await self.db_session.execute(
+            select(Video).where(Video.uploader_id == user_id).limit(limit)
+        )
+        return result.scalars().all()
 
     # async def update_video(
     #     self, video_id: int, update_data: dict[str, Any]
