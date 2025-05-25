@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Literal, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -175,3 +175,24 @@ class CameraUpdate(BaseModel):
     )
     
     model_config = ConfigDict(validate_assignment=True)
+
+
+class Geometry(BaseModel):
+    type: Literal["Point"]
+    coordinates: List[float]
+
+
+class FeatureProperties(BaseModel):
+    camera_id: str
+    has_video: bool
+
+
+class Feature(BaseModel):
+    type: Literal["Feature"]
+    properties: FeatureProperties
+    geometry: Geometry
+
+
+class FeatureCollection(BaseModel):
+    type: Literal["FeatureCollection"]
+    features: List[Feature]

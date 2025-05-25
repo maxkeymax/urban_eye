@@ -1,10 +1,12 @@
-from typing import Any, Optional
+from typing import Any, List, Optional
 from uuid import UUID
 
+from sqlalchemy import func
 from sqlalchemy.future import select
 
 from urban_eye.db.database import AsyncSession
 from urban_eye.models.camera import Camera
+from urban_eye.models.video import Video
 
 
 class CameraCRUD:
@@ -76,3 +78,35 @@ class CameraCRUD:
         await self.db_session.delete(camera)
         await self.db_session.commit()
         return True
+
+    async def get_all_as_geojson(self) -> dict[str, Any]:
+        result = await self.db_session.execute(
+            select(
+                Camera.camera_id,
+                Camera.camera_longitude,
+                Camera.camera_latitude,
+                func.count(Video.id).label("video_count")
+            ).outerjoin(Camera.videos)
+            .group_by(Camera.id)
+        )
+        features = []
+        for camera in result.all():
+            features.append({
+                'type': 'Feature',
+                'properties': {
+                    'camera_id': camera.camera_id,
+                    'has_video': camera.video_count > 0
+                },
+                'geometry': {
+                    'type': 'Point',
+                    'coordinates': [
+                        camera.camera_longitude,
+                        camera.camera_latitude
+                    ]
+                }
+            })
+        return {
+            'type': 'FeatureCollection',
+            'features': features
+        }
+        
