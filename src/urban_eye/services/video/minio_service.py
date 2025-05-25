@@ -6,30 +6,41 @@ from urban_eye.core.minio import get_minio_client
 
 
 class MinioServise:
-    async def upload_video_to_minio(file_bytes: bytes) -> str:
+    def __init__(self):
+        self.client = get_minio_client()
+
+    async def upload_video_to_minio(self, file_bytes: bytes) -> str:
         """
         Загружает видео в MinIO и возвращает ключ
         """
-        client = get_minio_client()
         key = f"videos/{uuid4()}.mp4"
 
         try:
-            client.put_object(Bucket="urban-eye", Key=key, Body=file_bytes)
+            self.client.put_object(Bucket="urban-eye", Key=key, Body=file_bytes)
         except ClientError as e:
             raise RuntimeError(f"Ошибка загрузки видео в MinIO: {e}")
 
         return key
 
-    async def upload_preview_to_minio(preview_bytes: bytes, filename: str) -> str:
+    async def upload_preview_to_minio(self, preview_bytes: bytes, filename: str) -> str:
         """
         Загружает превью в MinIO и возвращает ключ
         """
-        client = get_minio_client()
         key = f"previews/{uuid4()}.jpg"
 
         try:
-            client.put_object(Bucket="urban-eye", Key=key, Body=preview_bytes)
+            self.client.put_object(Bucket="urban-eye", Key=key, Body=preview_bytes)
         except ClientError as e:
             raise RuntimeError(f"Ошибка загрузки превью в MinIO: {e}")
 
         return key
+
+    async def delete_files(self, video_key: str, preview_key: str) -> bool:
+        try:
+            self.client.delete_object(Bucket="urban-eye", Key=video_key)
+            self.client.delete_object(Bucket="urban-eye", Key=preview_key)
+            return True
+        except ClientError as e:
+            if e.response["Error"]["Code"] != "NoSuchKey":
+                raise RuntimeError(f"Ошибка удаления файла из MinIO: {e}")
+            return False

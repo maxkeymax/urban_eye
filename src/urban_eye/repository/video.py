@@ -7,6 +7,7 @@ from sqlalchemy.future import select
 from urban_eye.db.database import AsyncSession
 from urban_eye.models.video import Video
 from urban_eye.schemas.filters import DateRange, DurationRange, VideoFiltersResponse
+from urban_eye.services.video.minio_service import MinioServise
 
 
 class VideoCRUD:
@@ -110,10 +111,23 @@ class VideoCRUD:
         await self.db_session.refresh(video)
         return video
 
-    # async def delete_video(self, video_id: int) -> bool:
-    #     video = await self.get_by_id(video_id)
-    #     if not video:
-    #         return False
-    #     await self.db_session.delete(video)
-    #     await self.db_session.commit()
-    #     return True
+    async def delete_video(self, video_id: int) -> bool:
+        video = await self.get_by_id(video_id)
+        if not video:
+            return False
+
+        try:
+            # 1. Удаляем файлы из MinIO
+            if not await MinioServise().delete_files(
+                video_key=video.video_key, preview_key=video.preview_key
+            ):
+                raise RuntimeError("Не удалось удалить файлы из хранилища")
+
+            # 2. Удаляем запись из БД
+            await self.db_session.delete(video)
+            await self.db_session.commit()
+
+            return True
+
+        except Exception as e:
+            raise RuntimeError(f"Ошибка при удалении видео: {str(e)}")

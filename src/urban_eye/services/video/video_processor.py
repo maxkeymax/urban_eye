@@ -26,14 +26,15 @@ class VideoProcessor:
             raise RuntimeError(f"Не удалось сгенерировать превью: {e}")
 
         # Сохраняем видео в MinIO
+        minio_service = MinioServise()
         try:
-            video_key = await MinioServise.upload_video_to_minio(file_bytes)
+            video_key = await minio_service.upload_video_to_minio(file_bytes)
         except Exception as e:
             raise RuntimeError(f"Не удалось загрузить видео: {e}")
 
         # Сохраняем превью в MinIO
         try:
-            preview_key = await MinioServise.upload_preview_to_minio(
+            preview_key = await minio_service.upload_preview_to_minio(
                 preview_bytes, "preview.jpg"
             )
         except Exception as e:

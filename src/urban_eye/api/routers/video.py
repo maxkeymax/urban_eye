@@ -86,3 +86,16 @@ async def update_video(
     if not updated:
         raise HTTPException(status_code=404, detail="Видео не найдено")
     return updated
+
+
+@router.delete("/{video_id}")
+async def delete_video(
+    video_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> dict:
+    crud = VideoCRUD(db)
+    deleted = await crud.delete_video(video_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Видео не найдено")
+    return {"detail": "Видео успешно удалено"}
