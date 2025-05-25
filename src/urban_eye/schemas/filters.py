@@ -18,3 +18,7 @@ class VideoFiltersResponse(BaseModel):
     duration: DurationRange
     time_of_day: List[str]
     status: List[str]
+
+
+class UserFiltersResponse(BaseModel):
+    full_names: List[str]

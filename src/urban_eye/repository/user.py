@@ -59,3 +59,7 @@ class UserCRUD:
         await self.db_session.delete(user)
         await self.db_session.commit()
         return True
+
+    async def get_user_full_names(self) -> list[str]:
+        result = await self.db_session.execute(select(User.full_name))
+        return result.scalars().all()
