@@ -79,19 +79,36 @@ class CameraCRUD:
         await self.db_session.commit()
         return True
 
-    async def get_all_as_geojson(self) -> dict[str, Any]:
-        result = await self.db_session.execute(
-            select(
-                Camera.camera_id,
-                Camera.camera_longitude,
-                Camera.camera_latitude,
-                func.count(Video.id).label("video_count")
-            ).outerjoin(Camera.videos)
-            .group_by(Camera.id)
-        )
-        features = []
-        for camera in result.all():
-            features.append({
+    async def get_all_as_geojson(
+        self,
+        name_filter: str | None = None,
+        type_filter: str | None = None,
+        has_video_filter: bool | None = None
+    ) -> dict[str, Any]:
+        query = select(
+            Camera.camera_id,
+            Camera.camera_name,
+            Camera.camera_type,
+            Camera.camera_longitude,
+            Camera.camera_latitude,
+            func.count(Video.id).label("video_count")
+        ).outerjoin(Camera.videos).group_by(Camera.id)
+        
+        if name_filter:
+            query = query.where(Camera.camera_name.ilike(f'%{name_filter}%'))
+        
+        if type_filter:
+            query = query.where(Camera.camera_type.ilike(f'%{type_filter}%'))
+            
+        if has_video_filter is not None:
+            if has_video_filter:
+                query = query.having(func.count(Video.id) > 0)
+            else:
+                query = query.having(func.count(Video.id) == 0)
+        
+        result = await self.db_session.execute(query)
+        
+        features = [{
                 'type': 'Feature',
                 'properties': {
                     'camera_id': camera.camera_id,
@@ -104,7 +121,8 @@ class CameraCRUD:
                         camera.camera_latitude
                     ]
                 }
-            })
+            } for camera in result.all()]
+        
         return {
             'type': 'FeatureCollection',
             'features': features

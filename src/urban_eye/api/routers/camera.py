@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -38,10 +38,18 @@ async def create_camera(
 
 @router.get("/geojson", response_model=FeatureCollection)
 async def get_cameras_geojson(
-    db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)
+    name: str | None = Query(None, description='Фильтр по названию камеры'),
+    camera_type: str | None = Query(None, description='Фильтр по типу камеры'),
+    has_video: bool | None = Query(None, description='Фильтр по наличию видео'),
+    db: AsyncSession = Depends(get_db), 
+    current_user: User = Depends(get_current_user)
 ) -> FeatureCollection:
     crud = CameraCRUD(db)
-    geojson_data = await crud.get_all_as_geojson()
+    geojson_data = await crud.get_all_as_geojson(
+        name_filter=name,
+        type_filter=camera_type,
+        has_video_filter=has_video
+    )
     return geojson_data
 
 
