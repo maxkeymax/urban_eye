@@ -23,9 +23,7 @@ async def upload_video(
     ),  # UUID
     status: str = Form(default="processing"),
     file: UploadFile = File(...),
-    uploader: int = Depends(
-        get_current_user
-    ),  # Пока хардкод, потом заменить на Depends
+    uploader: int = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> VideoResponse:
     # Собираем все данные в словарь

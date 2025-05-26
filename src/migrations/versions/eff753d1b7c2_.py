@@ -1,8 +1,8 @@
-"""Initial migration
+"""empty message
 
-Revision ID: 4b92598faf6a
+Revision ID: eff753d1b7c2
 Revises: 
-Create Date: 2025-05-15 13:53:35.469005
+Create Date: 2025-05-26 11:05:51.245983
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '4b92598faf6a'
+revision: str = 'eff753d1b7c2'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -59,7 +59,7 @@ def upgrade() -> None:
     sa.Column('duration', sa.Integer(), nullable=False),
     sa.Column('video_resolution', sa.String(length=20), nullable=False),
     sa.Column('fps', sa.Integer(), nullable=False),
-    sa.Column('time_of_day', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('time_of_day', sa.String(length=10), nullable=False, comment='Время суток: утро, день, вечер, ночь'),
     sa.Column('uploader_id', sa.Integer(), nullable=False),
     sa.Column('camera_id', sa.UUID(), nullable=False),
     sa.Column('uploaded_at', sa.DateTime(timezone=True), nullable=False),

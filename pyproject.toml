@@ -22,6 +22,7 @@ python-jose = {extras = ["cryptography"], version = "^3.4.0"}
 pydantic-settings = "^2.9.1"
 boto3 = "^1.38.18"
 opencv-python = "^4.11.0.86"
+redis = "^6.1.0"
 
 
 [build-system]

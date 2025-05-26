@@ -1,3 +1,4 @@
+from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -14,6 +15,8 @@ from urban_eye.schemas.camera import (
     CameraUpdate,
     FeatureCollection,
 )
+from urban_eye.core.redis import get_redis_client
+from urban_eye.services.caching.redis_service import RedisCache
 
 router = APIRouter(prefix="/cameras", tags=["Cameras"])
 
@@ -38,18 +41,32 @@ async def create_camera(
 
 @router.get("/geojson", response_model=FeatureCollection)
 async def get_cameras_geojson(
-    name: str | None = Query(None, description='Фильтр по названию камеры'),
-    camera_type: str | None = Query(None, description='Фильтр по типу камеры'),
-    has_video: bool | None = Query(None, description='Фильтр по наличию видео'),
-    db: AsyncSession = Depends(get_db), 
+    name: Optional[str] = Query(None, description='Фильтр по названию камеры'),
+    camera_type: Optional[str] = Query(None, description='Фильтр по типу камеры'),
+    has_video: Optional[bool] = Query(None, description='Фильтр по наличию видео'),
+    db: AsyncSession = Depends(get_db),
+    redis_cache: RedisCache = Depends(get_redis_client),
     current_user: User = Depends(get_current_user)
 ) -> FeatureCollection:
+    cache_key = f'geojson:{name}:{camera_type}:{has_video}'
+    
+    # Попробуем получить данные из	cache
+    cached = await redis_cache.get_geojson(cache_key)
+    if cached:
+        return cached
+    
+    # Если данные не найдены, получаем их из базы данных
     crud = CameraCRUD(db)
+    print('Данные из БД')
     geojson_data = await crud.get_all_as_geojson(
         name_filter=name,
         type_filter=camera_type,
         has_video_filter=has_video
     )
+    
+    # Сохраняем данные в кеш
+    await redis_cache.set_geojson(cache_key, geojson_data)
+    
     return geojson_data
 
 
@@ -93,4 +110,3 @@ async def delete_camera(
     if not deleted:
         raise HTTPException(status_code=404, detail="Камера не найдена")
     return {"detail": "Камера успешно удалена"}
-
