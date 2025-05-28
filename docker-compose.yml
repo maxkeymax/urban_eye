@@ -41,6 +41,18 @@ services:
       retries: 3
     networks:
       - custom
+  
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"     # AMQP порт (для Celery)
+      - "15672:15672"   # Веб-интерфейс управления (опционально)
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbit
+      RABBITMQ_DEFAULT_PASS: rabbit
+    networks:
+      - custom
 
 networks:
   custom:
