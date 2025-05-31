@@ -5,7 +5,7 @@ from botocore.exceptions import ClientError
 from urban_eye.core.minio import get_minio_client
 
 
-class MinioServise:
+class MinioService:
     def __init__(self):
         self.client = get_minio_client()
 
@@ -22,7 +22,7 @@ class MinioServise:
 
         return key
 
-    async def upload_preview_to_minio(self, preview_bytes: bytes, filename: str) -> str:
+    async def upload_preview_to_minio(self, preview_bytes: bytes) -> str:
         """
         Загружает превью в MinIO и возвращает ключ
         """
@@ -44,3 +44,14 @@ class MinioServise:
             if e.response["Error"]["Code"] != "NoSuchKey":
                 raise RuntimeError(f"Ошибка удаления файла из MinIO: {e}")
             return False
+
+    async def download_video(self, key: str) -> bytes:
+        """
+        Скачивает видео из MinIO как байты
+        """
+
+        try:
+            response = self.client.get_object(Bucket="urban-eye", Key=key)
+            return response["Body"].read()
+        except ClientError as e:
+            raise RuntimeError(f"Ошибка скачивания видео из MinIO: {e}")

@@ -7,7 +7,7 @@ from sqlalchemy.future import select
 from urban_eye.db.database import AsyncSession
 from urban_eye.models.video import Video
 from urban_eye.schemas.filters import DateRange, DurationRange, VideoFiltersResponse
-from urban_eye.services.video.minio_service import MinioServise
+from urban_eye.services.video.minio_service import MinioService
 
 
 class VideoCRUD:
@@ -52,6 +52,7 @@ class VideoCRUD:
         await self.db_session.commit()
         await self.db_session.refresh(new_video)
 
+        print("**********репозиторий create_video")
         return new_video
 
     async def get_videos(
@@ -118,7 +119,7 @@ class VideoCRUD:
 
         try:
             # 1. Удаляем файлы из MinIO
-            if not await MinioServise().delete_files(
+            if not await MinioService().delete_files(
                 video_key=video.video_key, preview_key=video.preview_key
             ):
                 raise RuntimeError("Не удалось удалить файлы из хранилища")

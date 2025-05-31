@@ -22,7 +22,6 @@ class VideoBase(BaseModel):
 
 
 class VideoCreate(VideoBase):
-    # uploader_id: int = Field(..., examples=[1])
     camera_id: uuid.UUID = Field(..., examples=["5e31ca75-0237-4ce1-81b8-1069fc764047"])
     status: str = Field(default="processing", examples=["processing", "ready"])
 
@@ -46,7 +45,7 @@ class VideoResponse(VideoBase):
     )
     duration: int = Field(
         ...,
-        ge=1,
+        ge=0,
         examples=[3600],
         description="Длительность видео в секундах",
     )
@@ -58,7 +57,7 @@ class VideoResponse(VideoBase):
     )
     fps: int = Field(
         ...,
-        ge=1,
+        ge=0,
         examples=[30],
         description="Частота кадров в секунду",
     )

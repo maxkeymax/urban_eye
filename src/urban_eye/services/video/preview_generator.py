@@ -1,7 +1,8 @@
+import io
 import os
-import tempfile
 
 import cv2
+import numpy as np
 
 
 def generate_preview(file_bytes: bytes) -> bytes:
@@ -9,9 +10,15 @@ def generate_preview(file_bytes: bytes) -> bytes:
     Генерирует превью из первого кадра.
     Возвращает (байты превью, имя файла)
     """
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp:
-        tmp.write(file_bytes)
-        tmp_path = tmp.name
+    file_bytes_io = io.BytesIO(file_bytes)
+    file_bytes_io.seek(0)
+    video_data = file_bytes_io.read()
+
+    np_array = np.frombuffer(video_data, dtype=np.uint8)
+    tmp_path = "temp_preview.mp4"
+
+    with open(tmp_path, "wb") as f:
+        f.write(np_array)
 
     cap = cv2.VideoCapture(tmp_path)
     ret, first_frame = cap.read()

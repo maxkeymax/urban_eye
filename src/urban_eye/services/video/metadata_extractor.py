@@ -1,17 +1,24 @@
+import io
 import os
-import tempfile
 from typing import Dict
 
 import cv2
+import numpy as np
 
 
 def extract_video_metadata(file_bytes: bytes) -> Dict[str, any]:
     """
     Извлекает метаданные видео из байтовой строки.
     """
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp:
-        tmp.write(file_bytes)
-        tmp_path = tmp.name
+    file_bytes_io = io.BytesIO(file_bytes)
+    file_bytes_io.seek(0)
+    file_bytes = file_bytes_io.read()
+
+    np_array = np.frombuffer(file_bytes, dtype=np.uint8)
+    tmp_path = "temp.mp4"
+
+    with open(tmp_path, "wb") as f:
+        f.write(np_array)
 
     cap = cv2.VideoCapture(tmp_path)
     if not cap.isOpened():
